@@ -87,14 +87,15 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 ### Built With
 
-- [![Next][next.js]][next-url]
-- [![React][react.js]][react-url]
-- [![Vue][vue.js]][vue-url]
-- [![Angular][angular.io]][angular-url]
-- [![Svelte][svelte.dev]][svelte-url]
-- [![Laravel][laravel.com]][laravel-url]
-- [![Bootstrap][bootstrap.com]][bootstrap-url]
-- [![JQuery][jquery.com]][jquery-url]
+-   [![Next][next.js]][next-url]
+-   [![React][react.js]][react-url]
+-   [![Vue][vue.js]][vue-url]
+-   [![Angular][angular.io]][angular-url]
+-   [![Svelte][svelte.dev]][svelte-url]
+-   [![Laravel][laravel.com]][laravel-url]
+-   [![Bootstrap][bootstrap.com]][bootstrap-url]
+-   [![jquery][jquery]][jquery-url]
+-   ![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -109,26 +110,26 @@ To get a local copy up and running follow these simple example steps.
 
 This is an example of how to list things you need to use the software and how to install them.
 
-- npm
-  ```sh
-  npm install npm@latest -g
-  ```
+-   npm
+    ```sh
+    npm install npm@latest -g
+    ```
 
 ### Installation
 
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
-   ```sh
-   git clone GITHUB_URL.git
-   ```
+    ```sh
+    git clone GITHUB_URL.git
+    ```
 3. Install NPM packages
-   ```sh
-   npm install
-   ```
+    ```sh
+    npm install
+    ```
 4. Enter your API in `config.js`
-   ```js
-   const API_KEY = "ENTER YOUR API";
-   ```
+    ```js
+    const API_KEY = 'ENTER YOUR API';
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -146,10 +147,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-  - [ ] Nested Feature
+-   [ ] Feature 1
+-   [ ] Feature 2
+-   [ ] Feature 3
+    -   [ ] Nested Feature
 
 See the [open issues](GITHUB_URL/issues) for a full list of proposed features (and known issues).
 
@@ -194,9 +195,9 @@ Project Link: [GITHUB_URL](GITHUB_URL)
 
 ## Acknowledgments
 
-- []()
-- []()
-- []()
+-   []()
+-   []()
+-   []()
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -230,5 +231,5 @@ Project Link: [GITHUB_URL](GITHUB_URL)
 [laravel-url]: https://laravel.com
 [bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [bootstrap-url]: https://getbootstrap.com
-[jquery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
+[jquery]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
 [jquery-url]: https://jquery.com
