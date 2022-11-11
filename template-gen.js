@@ -7,7 +7,7 @@ const initQuestions = [
     {
         type: 'input',
         message: 'Enter the URL for your GitHub Repo:\nhttps://www.github.com/',
-        name: 'githubURL',
+        name: 'repoAddress',
     },
     {
         type: 'checkbox',
@@ -279,147 +279,47 @@ const badges = {
     // ADD databases, hosting, social, version control
 };
 
-/* const camelCase = function (string) {
-    const [first, ...rest] = string.toLowerCase().split(' ');
-    return [
-        first,
-        rest
-            .map((element) => {
-                const [first, ...rest] = element.split('');
-                return [first.toUpperCase(), ...rest].join('');
-            })
-            .join(''),
-    ].join('');
-};
-
-const template = {
-    currentSectionIndex: 0,
-    sectionList: [],
-    referenceLinks: ``,
-    builtWithBadges: ``,
-
-    async init() {
-        await inquirer.prompt(initQuestions).then(function (res) {
-            template.githubURL = `https://www.github.com/${res.githubURL}`;
-            for (const section of res.sections) {
-                template[section] = ``;
-                console.log(section);
-                if (section === 'About') {
-                    template.sectionList.push(template.createAbout);
-                } else if (section === 'Built With') {
-                    template.sectionList.push(template.createBuiltWith);
-                }
-                // } else if (section === 'Prerequisites') {
-                //     template.sectionList.push(template.createPrerequisites);
-                // } else if (section === 'Installation') {
-                //     template.sectionList.push(template.createInstallation);
-                // } else if (section === 'Usage') {
-                //     template.sectionList.push(template.createUsage);
-                // } else if (section === 'Roadmap') {
-                //     template.sectionList.push(template.createRoadmap);
-                // } else if (section === 'Contributing') {
-                //     template.sectionList.push(template.createContributing);
-                // } else if (section === 'License') {
-                //     template.sectionList.push(template.createLicense);
-                // } else if (section === 'Contact') {
-                //     template.sectionList.push(template.createContact);
-                // } else if (section === 'Acknowledgements') {
-                //     template.sectionList.push(template.createAcknowledgements);
-                // }
-            }
-            console.log(template.sectionList);
-        });
-    },
-
-    async createAbout() {
-        console.log(
-            '\nLet\'s create your "ABOUT" section!\nWe will ask you a few questions, you just provide the answers.\nIf you do not wish to answer, press "ENTER".'
-        );
-        await inquirer
-            .prompt([
-                {
-                    type: 'input',
-                    message:
-                        'What was the motivation behind building this project?',
-                    name: 'motivation',
-                },
-                {
-                    type: 'input',
-                    message: 'Why did you build this project?',
-                    name: 'why',
-                },
-                {
-                    type: 'input',
-                    message: 'What problem does it solve?',
-                    name: 'problem',
-                },
-                {
-                    type: 'input',
-                    message: 'What did you learn?',
-                    name: 'learn',
-                },
-            ])
-            .then((res) => {
-                const { motivation, why, problem, learn } = res;
-                motivation ? (template.about += `${motivation}\n\n`) : null;
-                why ? (template.about += `${why}\n\n`) : null;
-                problem ? (template.about += `${problem}\n\n`) : null;
-                learn ? (template.about += `${learn}\n\n`) : null;
-            });
-    },
-
-    async createBuiltWith() {
-        await inquirer
-            .prompt([
-                {
-                    type: 'checkbox',
-                    message:
-                        '\nSelect any technologies/frameworks you used to build this application:\n',
-                    name: 'languages',
-                    choices: [...Object.keys(badges.languages)],
-                    default: ['JavaScript'],
-                },
-            ])
-            .then((res) => {
-                template.addBadge(res.languages, badges.languages);
-            })
-            .then(async function () {
-                await inquirer
-                    .prompt([
-                        {
-                            type: 'checkbox',
-                            message: 'What frameworks did you use?',
-                            name: 'frameworks',
-                            choices: [...Object.keys(badges.frameworks)],
-                        },
-                    ])
-                    .then((res) => {
-                        template.addBadge(res.frameworks, badges.frameworks);
-                    });
-            }); // more prompts can be added here following the same formula to add additional badges / badge types.
-    },
-
-    addBadge(badges, badgeType) {
-        for (const badge of badges) {
-            template.referenceLinks += `[${badge}-badge]: ${badgeType[badge].badgeURL}\n[${badge}-url]: ${badgeType[badge].siteURL}\n`;
-            template.builtWithBadges += `[![${badge}][${badge}-badge]][${badge}-url]\n`;
-        }
-    },
-};
-
-const addSections = async function () {
-    if (template.currentSectionIndex < template.sectionList.length) {
-        await template.sectionList[template.currentSectionIndex](); // template object -> list of sections -> specific section function in list
-        template.currentSectionIndex++;
-        addSections();
-    } else {
-        return;
-    }
-}; */
-
 (async function () {
     const template = {
         sectionList: [],
+        referenceLinks: `
+        <!-- MARKDOWN LINKS & IMAGES -->
+        <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->\n\n`,
+        builtWithBadges: ``,
+        about: ``,
+        prerequisites: ``,
+        async init() {
+            const init = await inquirer.prompt(initQuestions);
+
+            const { repoAddress, sections } = init;
+            
+            await this.getGitHubData(repoAddress);
+
+            for (const section of sections) {
+                await template[`create${section.split(' ').join('')}`]();
+            }
+        },
+
+        async getGitHubData(repo) {
+            const response = await fetch(`https://api.github.com/repos/${repo}`);
+            const gitHubData = await response.json();
+            const {name, html_url, language, license, } = gitHubData;
+            if (name) {
+                this.projectName = name;
+                this.githubURL = html_url;
+                this.pulledLanguages = language;
+                this.license = license.name;
+
+                const response = await inquirer.prompt([
+                    {
+                        type: 'list',
+                        message: `We have located your project on GitHub with the name of: ${name}
+                        Would you like to make this your project name?`
+                    }
+                ])
+            }
+        },
+
         async createAbout() {
             console.log(
                 '\nLet\'s create your "ABOUT" section!\nWe will ask you a few questions, you just provide the answers.\nIf you do not wish to answer, press "ENTER".\n'
@@ -454,30 +354,156 @@ const addSections = async function () {
             why ? (template.about += `${why}\n\n`) : null;
             problem ? (template.about += `${problem}\n\n`) : null;
             learn ? (template.about += `${learn}\n\n`) : null;
+
+            template.about = 
+            `
+            ## About The Project
+
+            ${motivation ? `What was the motivation behind creating this project?\n\n${motivation}` : null}
+            ${why ? `Why was the project built?\n\n${why}` : null}
+            ${problem ? `What problem does this project solve?\n\n${problem}` : null}
+            ${learn ? `What was learned through making this project?\n\n${learn}` : null}
+
+
+            `
         },
 
         async createBuiltWith() {
-            console.log('Built with section created');
+            const badgesUsed = await inquirer.prompt([
+                {
+                    type: 'checkbox',
+                    message: 'Select the languages used for this project:',
+                    name: 'languages',
+                    choices: [...Object.keys(badges.languages)]
+                },
+                {
+                    type: 'checkbox',
+                    message: 'Select any frameworks used in this project:',
+                    name: 'frameworks',
+                    choices: [...Object.keys(badges.frameworks)]
+                }
+            ]);
+
+            const {languages, frameworks} = badgesUsed;
+
+            this.addBadge(languages, badges.languages);
+            this.addBadge(frameworks, badges.frameworks);
+            // TODO: Add more badge types here and destructure them from the badges used object.
+
+            template.builtWith = 
+            `## Built With:
+            ${this.builtWithBadges}
+            `;
         },
 
         async createPrerequisites() {
-            console.log('Prerequisites created');
+            template.prerequisites = 
+            `## Prerequisites
+            
+            Below is the software required to run this program and the steps to install them:
+
+            `
+            const steps = await this.addStep('prerequisite');
+            for (const stepEntry of steps) {
+                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
+                this.prerequisites += 
+                `- ${stepNumber}${stepTitle}
+                \`\`\`${textStyle}
+                ${step}
+                \`\`\`\n\n`
+            }
         },
 
         async createInstallation() {
-            console.log('Installation Created');
+            template.installation = 
+            `## Installation:
+            
+            `
+
+            const steps = await this.addStep('installation');
+            for (const stepEntry of steps) {
+                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
+                this.installation += 
+                `- ${stepNumber}${stepTitle}
+                \`\`\`${textStyle}
+                ${step}
+                \`\`\`\n\n`
+            }
         },
 
         async createUsage() {
-            console.log('Usage created');
+            template.usage = 
+            `## Usage:
+            
+            `
+            
+            const steps = await this.addStep('usage');
+            for (const stepEntry of steps) {
+                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
+                this.usage += 
+                `- ${stepNumber}${stepTitle}
+                \`\`\`${textStyle}
+                ${step}
+                \`\`\`\n\n`
+            }
+
         },
 
         async createRoadmap() {
-            console.log('Roadmap created');
+            template.roadmap = 
+            `## Roadmap:
+            
+            `
+            
+            const steps = await this.addStep('roadmap');
+            for (const stepEntry of steps) {
+                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
+                this.roadmap += 
+                `- [ ] ${stepTitle} -> ${step}`
+            }
         },
 
         async createContributing() {
-            console.log('Contributing Created');
+            this.contributing = 
+            `## Contributing
+
+            Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+            
+            If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+            Don't forget to give the project a star! Thanks again!
+            
+            1. Fork the Project
+            2. Create your Feature Branch (\`git checkout -b feature/AmazingFeature\`)
+            3. Commit your Changes (\`git commit -m 'Add some AmazingFeature'\`)
+            4. Push to the Branch (\`git push origin feature/AmazingFeature\`)
+            5. Open a Pull Request
+            
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>`
+
+            const response = await inquirer.prompt([
+                {
+                    type: 'confirm',
+                    message: 'Would you like to continue with the default contribution template? ',
+                    name: 'default'
+                }
+            ])
+
+            if (!response.default) {
+                this.contributing = 
+                `## Contributing
+                
+                `
+                const steps = await this.addStep('contributing');
+                for (const stepEntry of steps) {
+                    const {stepNumber, step, stepTitle, textStyle} = stepEntry;
+                    this.contributing += 
+                    `- ${stepNumber}${stepTitle}
+                    \`\`\`${textStyle}
+                    ${step}
+                    \`\`\`\n\n`
+                    
+                }
+            }
         },
 
         async createLicense() {
@@ -491,24 +517,67 @@ const addSections = async function () {
         async createAcknowledgements() {
             console.log('Acknowledgements created');
         },
+
+        addBadge(badges, badgeType) {
+            for (const badge of badges) {
+                template.referenceLinks += `[${badge}-badge]: ${badgeType[badge].badgeURL}\n[${badge}-url]: ${badgeType[badge].siteURL}\n`;
+                template.builtWithBadges += `\n- [![${badge}][${badge}-badge]][${badge}-url]`;
+            }
+        },
+
+        async addStep(stepType, stepNumber = 1, list = []) {
+            const styleChoices = ['none', 'js', 'sh'];
+            const message = {
+                prerequisite: `Please add a prerequisite or press ENTER to skip.\nStep Number: ${stepNumber}`,
+                installation: `Please add an installation step or press ENTER to skip.\nStep Number: ${stepNumber}`,
+                usage: `Add a usage example or press ENTER to skip.`,
+                roadmap: `Describe a new milestone on your roadmap or press ENTER to skip.`,
+                contributing: `Add a step for contributing to the project. Press ENTER if finished.`,
+            }
+            const stepList = list;
+
+            const response = await inquirer.prompt([
+                {
+                    type: 'input',
+                    message: `${message[stepType]}`,
+                    name: 'step',
+                }
+            ])
+
+            const {step} = response;
+
+            if (step) {
+
+                const stepDetails = await inquirer.prompt([
+                    {
+                        type: 'input',
+                        message: 'What should we title this?',
+                        name: 'stepTitle'
+                    },
+                    {
+                        type: 'list',
+                        message: 'Should we add any styling?',
+                        name: 'textStyle',
+                        choices: styleChoices
+                    }
+                ])
+                const {stepTitle, textStyle} = stepDetails;
+                stepList.push({step: step, stepTitle: stepTitle, textStyle: textStyle, stepNumber: stepNumber});
+                stepNumber++;
+                await this.addStep(stepType, stepNumber, stepList);
+            }
+
+            return stepList;
+        }
     };
 
-    const populateSectionList = function (section) {
-        section === 'About'
-            ? template.sectionList.push(template.createAbout)
-            : null;
-    };
+    // await template.init();
+    // console.log(template);
 
-    const response = await inquirer.prompt(initQuestions);
+    const test = 'this-is-a-test';
+    const newString = test.replaceAll('-', ' ');
+    console.log(newString);
 
-    const { githubURL, sections } = response;
-
-    template.githubURL = githubURL;
-
-    for (const section of sections) {
-        template[section] = ``;
-        await template[`create${section.split(' ').join('')}`]();
-    }
 })();
 
 // Ask for github repo

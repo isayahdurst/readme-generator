@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/isayahdurst/readme-generator#readme",
   "dependencies": {
-    "inquirer": "^8.2.4"
+    "inquirer": "^8.2.4",
+    "latest": "^0.2.0",
+    "n": "^9.0.1",
+    "stable": "^0.1.8"
   }
 }
