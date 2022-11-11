@@ -81,7 +81,7 @@ const badges = {
             siteURL: 'https://www.haskell.org/documentation/',
         },
 
-        HTML5: {
+        HTML: {
             badgeURL:
                 'https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white',
             siteURL: 'https://html.spec.whatwg.org/multipage/',
@@ -288,11 +288,12 @@ const badges = {
         builtWithBadges: ``,
         about: ``,
         prerequisites: ``,
+
         async init() {
             const init = await inquirer.prompt(initQuestions);
 
             const { repoAddress, sections } = init;
-            
+            this.repoPath = repoAddress;
             await this.getGitHubData(repoAddress);
 
             for (const section of sections) {
@@ -301,22 +302,50 @@ const badges = {
         },
 
         async getGitHubData(repo) {
-            const response = await fetch(`https://api.github.com/repos/${repo}`);
+            const response = await fetch(
+                `https://api.github.com/repos/${repo}`
+            );
             const gitHubData = await response.json();
-            const {name, html_url, language, license, } = gitHubData;
+            const { name, html_url, language, license } = gitHubData;
             if (name) {
                 this.projectName = name;
                 this.githubURL = html_url;
                 this.pulledLanguages = language;
                 this.license = license.name;
+                let formattedName = name.replace('-', ' ');
+                formattedName = formattedName.replace('_', ' ');
 
+                const promptChoices = [
+                    'Yes',
+                    `Yes, but format first (${formattedName})`,
+                    'No, use a custom name',
+                ];
                 const response = await inquirer.prompt([
                     {
                         type: 'list',
                         message: `We have located your project on GitHub with the name of: ${name}
-                        Would you like to make this your project name?`
-                    }
-                ])
+                        Would you like to make this your project name?`,
+                        name: 'confirmProjectName',
+                        choices: promptChoices,
+                    },
+                ]);
+
+                response.confirmProjectName === promptChoices[1]
+                    ? (this.projectName = formattedName)
+                    : null;
+
+                if (response.confirmProjectName === promptChoices[2]) {
+                    const response = await inquirer.prompt([
+                        {
+                            type: 'input',
+                            message:
+                                'What would you like to call this project?',
+                            name: 'newProjectName',
+                        },
+                    ]);
+
+                    this.projectName = response.newProjectName;
+                }
             }
         },
 
@@ -355,117 +384,125 @@ const badges = {
             problem ? (template.about += `${problem}\n\n`) : null;
             learn ? (template.about += `${learn}\n\n`) : null;
 
-            template.about = 
-            `
+            template.about = `
             ## About The Project
 
-            ${motivation ? `What was the motivation behind creating this project?\n\n${motivation}` : null}
+            ${
+                motivation
+                    ? `What was the motivation behind creating this project?\n\n${motivation}`
+                    : null
+            }
             ${why ? `Why was the project built?\n\n${why}` : null}
-            ${problem ? `What problem does this project solve?\n\n${problem}` : null}
-            ${learn ? `What was learned through making this project?\n\n${learn}` : null}
+            ${
+                problem
+                    ? `What problem does this project solve?\n\n${problem}`
+                    : null
+            }
+            ${
+                learn
+                    ? `What was learned through making this project?\n\n${learn}`
+                    : null
+            }
 
 
-            `
+            `;
         },
 
         async createBuiltWith() {
+            const response = await fetch(
+                `https://api.github.com/repos/${this.repoPath}/languages`
+            );
+
+            const detectedLanguages = await response.json();
+            const defaultLanguages = [...Object.keys(detectedLanguages)];
+
             const badgesUsed = await inquirer.prompt([
                 {
                     type: 'checkbox',
                     message: 'Select the languages used for this project:',
                     name: 'languages',
-                    choices: [...Object.keys(badges.languages)]
+                    choices: [...Object.keys(badges.languages)],
+                    default: defaultLanguages,
                 },
                 {
                     type: 'checkbox',
                     message: 'Select any frameworks used in this project:',
                     name: 'frameworks',
-                    choices: [...Object.keys(badges.frameworks)]
-                }
+                    choices: [...Object.keys(badges.frameworks)],
+                },
             ]);
 
-            const {languages, frameworks} = badgesUsed;
+            const { languages, frameworks } = badgesUsed;
 
             this.addBadge(languages, badges.languages);
             this.addBadge(frameworks, badges.frameworks);
             // TODO: Add more badge types here and destructure them from the badges used object.
 
-            template.builtWith = 
-            `## Built With:
+            template.builtWith = `## Built With:
             ${this.builtWithBadges}
             `;
         },
 
         async createPrerequisites() {
-            template.prerequisites = 
-            `## Prerequisites
+            template.prerequisites = `## Prerequisites
             
             Below is the software required to run this program and the steps to install them:
 
-            `
+            `;
             const steps = await this.addStep('prerequisite');
             for (const stepEntry of steps) {
-                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
-                this.prerequisites += 
-                `- ${stepNumber}${stepTitle}
+                const { stepNumber, step, stepTitle, textStyle } = stepEntry;
+                this.prerequisites += `- ${stepNumber}${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
-                \`\`\`\n\n`
+                \`\`\`\n\n`;
             }
         },
 
         async createInstallation() {
-            template.installation = 
-            `## Installation:
+            template.installation = `## Installation:
             
-            `
+            `;
 
             const steps = await this.addStep('installation');
             for (const stepEntry of steps) {
-                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
-                this.installation += 
-                `- ${stepNumber}${stepTitle}
+                const { stepNumber, step, stepTitle, textStyle } = stepEntry;
+                this.installation += `- ${stepNumber}${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
-                \`\`\`\n\n`
+                \`\`\`\n\n`;
             }
         },
 
         async createUsage() {
-            template.usage = 
-            `## Usage:
+            template.usage = `## Usage:
             
-            `
-            
+            `;
+
             const steps = await this.addStep('usage');
             for (const stepEntry of steps) {
-                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
-                this.usage += 
-                `- ${stepNumber}${stepTitle}
+                const { stepNumber, step, stepTitle, textStyle } = stepEntry;
+                this.usage += `- ${stepNumber}${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
-                \`\`\`\n\n`
+                \`\`\`\n\n`;
             }
-
         },
 
         async createRoadmap() {
-            template.roadmap = 
-            `## Roadmap:
+            template.roadmap = `## Roadmap:
             
-            `
-            
+            `;
+
             const steps = await this.addStep('roadmap');
             for (const stepEntry of steps) {
-                const {stepNumber, step, stepTitle, textStyle} = stepEntry;
-                this.roadmap += 
-                `- [ ] ${stepTitle} -> ${step}`
+                const { stepNumber, step, stepTitle, textStyle } = stepEntry;
+                this.roadmap += `- [ ] ${stepTitle} -> ${step}`;
             }
         },
 
         async createContributing() {
-            this.contributing = 
-            `## Contributing
+            this.contributing = `## Contributing
 
             Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
             
@@ -478,30 +515,29 @@ const badges = {
             4. Push to the Branch (\`git push origin feature/AmazingFeature\`)
             5. Open a Pull Request
             
-            <p align="right">(<a href="#readme-top">back to top</a>)</p>`
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>`;
 
             const response = await inquirer.prompt([
                 {
                     type: 'confirm',
-                    message: 'Would you like to continue with the default contribution template? ',
-                    name: 'default'
-                }
-            ])
+                    message:
+                        'Would you like to continue with the default contribution template? ',
+                    name: 'default',
+                },
+            ]);
 
             if (!response.default) {
-                this.contributing = 
-                `## Contributing
+                this.contributing = `## Contributing
                 
-                `
+                `;
                 const steps = await this.addStep('contributing');
                 for (const stepEntry of steps) {
-                    const {stepNumber, step, stepTitle, textStyle} = stepEntry;
-                    this.contributing += 
-                    `- ${stepNumber}${stepTitle}
+                    const { stepNumber, step, stepTitle, textStyle } =
+                        stepEntry;
+                    this.contributing += `- ${stepNumber}${stepTitle}
                     \`\`\`${textStyle}
                     ${step}
-                    \`\`\`\n\n`
-                    
+                    \`\`\`\n\n`;
                 }
             }
         },
@@ -528,12 +564,12 @@ const badges = {
         async addStep(stepType, stepNumber = 1, list = []) {
             const styleChoices = ['none', 'js', 'sh'];
             const message = {
-                prerequisite: `Please add a prerequisite or press ENTER to skip.\nStep Number: ${stepNumber}`,
-                installation: `Please add an installation step or press ENTER to skip.\nStep Number: ${stepNumber}`,
+                prerequisite: `Please add a prerequisite or press ENTER to skip.\nPrereq #: ${stepNumber}`,
+                installation: `Please add an installation step or press ENTER to skip.\nStep: ${stepNumber}`,
                 usage: `Add a usage example or press ENTER to skip.`,
                 roadmap: `Describe a new milestone on your roadmap or press ENTER to skip.`,
                 contributing: `Add a step for contributing to the project. Press ENTER if finished.`,
-            }
+            };
             const stepList = list;
 
             const response = await inquirer.prompt([
@@ -541,43 +577,44 @@ const badges = {
                     type: 'input',
                     message: `${message[stepType]}`,
                     name: 'step',
-                }
-            ])
+                },
+            ]);
 
-            const {step} = response;
+            const { step } = response;
 
             if (step) {
-
                 const stepDetails = await inquirer.prompt([
                     {
                         type: 'input',
                         message: 'What should we title this?',
-                        name: 'stepTitle'
+                        name: 'stepTitle',
                     },
                     {
                         type: 'list',
                         message: 'Should we add any styling?',
                         name: 'textStyle',
-                        choices: styleChoices
-                    }
-                ])
-                const {stepTitle, textStyle} = stepDetails;
-                stepList.push({step: step, stepTitle: stepTitle, textStyle: textStyle, stepNumber: stepNumber});
+                        choices: styleChoices,
+                    },
+                ]);
+                const { stepTitle, textStyle } = stepDetails;
+                stepList.push({
+                    step: step,
+                    stepTitle: stepTitle,
+                    textStyle: textStyle,
+                    stepNumber: stepNumber,
+                });
                 stepNumber++;
                 await this.addStep(stepType, stepNumber, stepList);
             }
 
             return stepList;
-        }
+        },
     };
 
-    // await template.init();
-    // console.log(template);
+    /* await template.init();
+    console.log(template); */
 
-    const test = 'this-is-a-test';
-    const newString = test.replaceAll('-', ' ');
-    console.log(newString);
-
+    console.log('%cHello', 'color: green; background: yellow; font-size: 30px');
 })();
 
 // Ask for github repo
