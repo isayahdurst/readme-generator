@@ -1,7 +1,9 @@
 'use strict';
 
+const chalk = require('chalk');
 const fs = require('fs');
 const inquirer = require('inquirer');
+const title = chalk.red;
 
 const initQuestions = [
     {
@@ -158,121 +160,160 @@ const badges = {
         '.NET': {
             badgeURL:
                 'https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://learn.microsoft.com/en-us/dotnet/',
         },
 
         Angular: {
             badgeURL:
                 'https://img.shields.io/badge/angular-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://angular.io/docs',
         },
 
         Bootstrap: {
             badgeURL:
                 'https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white',
-            siteURL: '',
+            siteURL:
+                'https://getbootstrap.com/docs/4.1/getting-started/introduction/',
         },
 
         Bulma: {
             badgeURL:
                 'https://img.shields.io/badge/bulma-00D0B1?style=for-the-badge&logo=bulma&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://bulma.io/documentation/',
         },
 
         'Chart.js': {
             badgeURL:
                 'https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://www.chartjs.org/docs/latest/',
         },
 
         Django: {
             badgeURL:
                 'https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://docs.djangoproject.com/en/4.1/',
         },
 
         'Express.js': {
             badgeURL:
                 'https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB',
-            siteURL: '',
+            siteURL: 'https://expressjs.com/',
         },
 
         JQuery: {
             badgeURL:
                 'https://img.shields.io/badge/jquery-%230769AD.svg?style=for-the-badge&logo=jquery&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://api.jquery.com/',
         },
 
         NPM: {
             badgeURL:
                 'https://img.shields.io/badge/NPM-%23000000.svg?style=for-the-badge&logo=npm&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://docs.npmjs.com/',
         },
 
         Next: {
             badgeURL:
                 'https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://nextjs.org/docs',
         },
 
         'Node.js': {
             badgeURL:
                 'https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://nodejs.org/en/docs/',
         },
 
         React: {
             badgeURL:
                 'https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB',
-            siteURL: '',
+            siteURL: 'https://reactjs.org/docs/getting-started.html',
         },
 
         Redux: {
             badgeURL:
                 'https://img.shields.io/badge/redux-%23593d88.svg?style=for-the-badge&logo=redux&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://redux.js.org/',
         },
 
         Remix: {
             badgeURL:
                 'https://img.shields.io/badge/remix-%23000.svg?style=for-the-badge&logo=remix&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://remix.run/docs/en/v1',
         },
 
-        SAAS: {
+        SASS: {
             badgeURL:
                 'https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://sass-lang.com/documentation/',
         },
 
         TailwindCSS: {
             badgeURL:
                 'https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://tailwindcss.com/docs/installation',
         },
 
         'Three.js': {
             badgeURL:
                 'https://img.shields.io/badge/threejs-black?style=for-the-badge&logo=three.js&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://threejs.org/',
         },
 
         'Vue.js': {
             badgeURL:
                 'https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D',
-            siteURL: '',
+            siteURL: 'https://vuejs.org/',
         },
 
         Webpack: {
             badgeURL:
                 'https://img.shields.io/badge/webpack-%238DD6F9.svg?style=for-the-badge&logo=webpack&logoColor=black',
-            siteURL: '',
+            siteURL: 'https://webpack.js.org/',
         },
 
         'Web3.js': {
             badgeURL:
                 'https://img.shields.io/badge/web3.js-F16822?style=for-the-badge&logo=web3.js&logoColor=white',
-            siteURL: '',
+            siteURL: 'https://web3js.readthedocs.io/en/v1.8.1/',
+        },
+    },
+
+    social: {
+        Email: {
+            badgeURL:
+                'https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white',
+            siteURL: `mailto:`,
+        },
+
+        LinkedIn: {
+            badgeURL:
+                'https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white',
+            siteURL: 'https://www.linkedin.com/in/',
+        },
+
+        Twitter: {
+            badgeURL:
+                'https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white',
+            siteURL: 'https://www.twitter.com/',
+        },
+
+        TikTok: {
+            badgeURL:
+                'https://img.shields.io/badge/TikTok-000000?style=for-the-badge&logo=tiktok&logoColor=white',
+            siteURL: 'https://www.tiktok.com/@',
+        },
+
+        Instagram: {
+            badgeURL:
+                'https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white',
+            siteURL: 'https://www.instagram.com/',
+        },
+
+        LinkTree: {
+            badgeURL:
+                'https://img.shields.io/badge/linktree-39E09B?style=for-the-badge&logo=linktree&logoColor=white',
+            siteURL: 'https://linktr.ee/',
         },
     },
 
@@ -286,6 +327,7 @@ const badges = {
         <!-- MARKDOWN LINKS & IMAGES -->
         <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->\n\n`,
         builtWithBadges: ``,
+        socialBadges: ``,
         about: ``,
         prerequisites: ``,
 
@@ -297,6 +339,7 @@ const badges = {
             await this.getGitHubData(repoAddress);
 
             for (const section of sections) {
+                console.clear();
                 await template[`create${section.split(' ').join('')}`]();
             }
         },
@@ -307,24 +350,30 @@ const badges = {
             );
             const gitHubData = await response.json();
             const { name, html_url, language, license } = gitHubData;
+            this.githubData = gitHubData;
+            console.log(this.gitHubData);
+
             if (name) {
                 this.projectName = name;
                 this.githubURL = html_url;
                 this.pulledLanguages = language;
-                this.license = license.name;
-                let formattedName = name.replace('-', ' ');
-                formattedName = formattedName.replace('_', ' ');
+                this.licenseType = license.name;
+                let formattedName = name.replaceAll('-', ' ');
+                formattedName = formattedName.replaceAll('_', ' ');
+
+                console.clear();
 
                 const promptChoices = [
                     'Yes',
-                    `Yes, but format first (${formattedName})`,
+                    `Yes, but format first (${chalk.blue(formattedName)})`,
                     'No, use a custom name',
                 ];
                 const response = await inquirer.prompt([
                     {
                         type: 'list',
-                        message: `We have located your project on GitHub with the name of: ${name}
-                        Would you like to make this your project name?`,
+                        message: `We have located your project on GitHub with the name of: ${chalk.greenBright.bold(
+                            name
+                        )}\nWould you like to make this your project name?`,
                         name: 'confirmProjectName',
                         choices: promptChoices,
                     },
@@ -351,7 +400,9 @@ const badges = {
 
         async createAbout() {
             console.log(
-                '\nLet\'s create your "ABOUT" section!\nWe will ask you a few questions, you just provide the answers.\nIf you do not wish to answer, press "ENTER".\n'
+                chalk.red(
+                    '\nLet\'s create your "ABOUT" section!\nWe will ask you a few questions, you just provide the answers.\nIf you do not wish to answer, press "ENTER".\n'
+                )
             );
 
             const response = await inquirer.prompt([
@@ -379,28 +430,26 @@ const badges = {
             ]);
 
             const { motivation, why, problem, learn } = response;
-            motivation ? (template.about += `${motivation}\n\n`) : null;
+            /* motivation ? (template.about += `${motivation}\n\n`) : null;
             why ? (template.about += `${why}\n\n`) : null;
             problem ? (template.about += `${problem}\n\n`) : null;
-            learn ? (template.about += `${learn}\n\n`) : null;
+            learn ? (template.about += `${learn}\n\n`) : null; */
 
             template.about = `
-            ## About The Project
-
             ${
                 motivation
                     ? `What was the motivation behind creating this project?\n\n${motivation}`
                     : null
             }
-            ${why ? `Why was the project built?\n\n${why}` : null}
+            ${why ? `\n\nWhy was the project built?\n\n${why}` : null}
             ${
                 problem
-                    ? `What problem does this project solve?\n\n${problem}`
+                    ? `\n\nWhat problem does this project solve?\n\n${problem}`
                     : null
             }
             ${
                 learn
-                    ? `What was learned through making this project?\n\n${learn}`
+                    ? `\n\nWhat was learned through making this project?\n\n${learn}`
                     : null
             }
 
@@ -416,10 +465,16 @@ const badges = {
             const detectedLanguages = await response.json();
             const defaultLanguages = [...Object.keys(detectedLanguages)];
 
+            console.log(
+                `We have detected the following languages from your repository:\n${chalk.green(
+                    defaultLanguages.join(', ')
+                )}\n`
+            );
+
             const badgesUsed = await inquirer.prompt([
                 {
                     type: 'checkbox',
-                    message: 'Select the languages used for this project:',
+                    message: 'Add additional languages:',
                     name: 'languages',
                     choices: [...Object.keys(badges.languages)],
                     default: defaultLanguages,
@@ -543,21 +598,78 @@ const badges = {
         },
 
         async createLicense() {
-            console.log('License Created');
+            if (!this.licenseType) {
+                const response = await inquirer.prompt([
+                    {
+                        type: 'input',
+                        message: `${chalk.yellow(
+                            `Auto-Detect Failed.`
+                        )} Please enter license type:`,
+                        name: 'licenseType',
+                    },
+                ]);
+
+                this.licenseType = response.licenseType;
+            }
+            this.license = `<!-- LICENSE -->
+
+            ## License
+            
+            Distributed under the ${this.licenseType} License. See \`LICENSE.txt\` for more information.
+            
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>`;
         },
 
         async createContact() {
-            console.log('Contact created');
+            console.clear();
+            console.log(title('Contact Section: Step 1 - Select Options'));
+            const response = await inquirer.prompt([
+                {
+                    type: 'checkbox',
+                    message:
+                        'Please select the contact options you wish to include:',
+                    name: 'contactOptions',
+                    choices: [...Object.keys(badges.social)],
+                    default: ['Email', 'LinkedIn'],
+                },
+            ]);
+
+            const { contactOptions } = response;
+
+            const appendLinks = async function (options) {
+                for (const link of options) {
+                    console.clear();
+                    console.log(title('Contact Section: Step 2 - Finish URL'));
+                    const response = await inquirer.prompt([
+                        {
+                            type: 'input',
+                            message: `${link}| ${badges.social[link].siteURL}`,
+                            name: 'completeURL',
+                        },
+                    ]);
+
+                    const { completeURL } = response;
+                    badges.social[link].siteURL += completeURL;
+                }
+            };
+            await appendLinks(contactOptions);
+            this.addBadge(contactOptions, badges.social, 'social');
+            console.log(this.socialBadges);
         },
 
         async createAcknowledgements() {
             console.log('Acknowledgements created');
         },
 
-        addBadge(badges, badgeType) {
+        addBadge(badges, badgeType, badgeTypeString) {
             for (const badge of badges) {
                 template.referenceLinks += `[${badge}-badge]: ${badgeType[badge].badgeURL}\n[${badge}-url]: ${badgeType[badge].siteURL}\n`;
-                template.builtWithBadges += `\n- [![${badge}][${badge}-badge]][${badge}-url]`;
+
+                if (badgeTypeString === 'social') {
+                    template.socialBadges += `\n- [![${badge}][${badge}-badge]][${badge}-url]`;
+                } else {
+                    template.builtWithBadges += `\n- [![${badge}][${badge}-badge]][${badge}-url]`;
+                }
             }
         },
 
@@ -609,12 +721,166 @@ const badges = {
 
             return stepList;
         },
+
+        createTemplate() {
+            const template = `
+            <a name="readme-top"></a>
+
+            [![Contributors][contributors-shield]][contributors-url]
+            [![Forks][forks-shield]][forks-url]
+            [![Stargazers][stars-shield]][stars-url]
+            [![Issues][issues-shield]][issues-url]
+            [![MIT License][license-shield]][license-url]
+            [![LinkedIn][linkedin-shield]][linkedin-url]
+
+            <!-- PROJECT LOGO -->
+            <br />
+            <div align="center">
+                <a href="GITHUB_URL">
+                <img src="LOGO_SOURCE" alt="Logo" width="80" height="80">
+                </a>
+
+            <h3 align="center">${this.projectName}</h3>
+                <p align="center">
+                PROJECT_DESCRIPTION
+                <br />
+                <a href="GITHUB_URL"><strong>Explore the docs »</strong></a>
+                <br />
+                <br />
+                <a href="GITHUB_URL">View Demo</a>
+                ·
+                <a href="GITHUB_URL/issues">Report Bug</a>
+                ·
+                <a href="GITHUB_URL/issues">Request Feature</a>
+                </p>
+            </div>
+
+            <!-- TABLE OF CONTENTS -->
+            <details>
+                <summary>Table of Contents</summary>
+                <ol>
+                <li>
+                    <a href="#about-the-project">About The Project</a>
+                    <ul>
+                    <li><a href="#built-with">Built With</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#getting-started">Getting Started</a>
+                    <ul>
+                    <li><a href="#prerequisites">Prerequisites</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    </ul>
+                </li>
+                <li><a href="#usage">Usage</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                <li><a href="#contributing">Contributing</a></li>
+                <li><a href="#license">License</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#acknowledgments">Acknowledgments</a></li>
+                </ol>
+            </details>
+
+            <!-- ABOUT THE PROJECT -->
+
+            ## About The Project
+
+            [![Product Name Screen Shot][product-screenshot]](https://example.com)
+
+            ${this.about}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            ### Built With
+
+            ${this.builtWithBadges}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- GETTING STARTED -->
+
+            ## Getting Started
+
+            Please reference the prerequisites / installation guides below to begin using this program.
+
+            ${this.prerequisites}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            ${this.installation}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- USAGE EXAMPLES -->
+
+            ${this.usage}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- ROADMAP -->
+
+            ${this.roadmap}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- CONTRIBUTING -->
+
+            ${this.contributing}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- LICENSE -->
+
+            ${this.license}
+
+            <!-- CONTACT -->
+
+            ## Contact:
+
+            ${this.socialBadges}
+
+            Project Link: ['https://www.github.com/${this.repoPath}'](${this.projectName})
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- ACKNOWLEDGMENTS -->
+
+            ## Acknowledgments
+
+            -   []()
+            -   []()
+            -   []()
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            <!-- MARKDOWN LINKS & IMAGES -->
+            <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+            [contributors-shield]: https://img.shields.io/github/contributors/${this.repoPath}.svg?style=for-the-badge
+            [contributors-url]: GITHUB_URL/graphs/contributors
+            [forks-shield]: https://img.shields.io/github/forks/${this.repoPath}.svg?style=for-the-badge
+            [forks-url]: GITHUB_URL/network/members
+            [stars-shield]: https://img.shields.io/github/stars/${this.repoPath}.svg?style=for-the-badge
+            [stars-url]: GITHUB_URL/stargazers
+            [issues-shield]: https://img.shields.io/github/issues/${this.repoPath}.svg?style=for-the-badge
+            [issues-url]: GITHUB_URL/issues
+            [license-shield]: https://img.shields.io/github/license/${this.repoPath}.svg?style=for-the-badge
+            [license-url]: GITHUB_URL/blob/master/LICENSE.txt
+            [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+            [product-screenshot]: images/screenshot.png
+
+${this.referenceLinks}
+`;
+
+            fs.writeFile('test.md', template.replace(/^ +/gm, ''), (err) => {
+                err ? console.log(err) : console.log('Saved Successfully');
+            });
+        },
     };
 
-    /* await template.init();
-    console.log(template); */
-
-    console.log('%cHello', 'color: green; background: yellow; font-size: 30px');
+    console.clear();
+    await template.init();
+    template.createTemplate();
 })();
 
 // Ask for github repo
