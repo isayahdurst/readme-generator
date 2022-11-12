@@ -25,6 +25,8 @@ const initQuestions = [
             'Contributing',
             'License',
             'Contact',
+            'Tests',
+            'Questions',
             'Acknowledgements',
         ],
         default: [
@@ -315,6 +317,12 @@ const badges = {
                 'https://img.shields.io/badge/linktree-39E09B?style=for-the-badge&logo=linktree&logoColor=white',
             siteURL: 'https://linktr.ee/',
         },
+
+        GitHub: {
+            badgeURL:
+                'https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white',
+            siteURL: `https://www.github.com/`,
+        },
     },
 
     // ADD databases, hosting, social, version control
@@ -336,12 +344,16 @@ const badges = {
 
             const { repoAddress, sections } = init;
             this.repoPath = repoAddress;
+            this.githubUsername = repoAddress.split('/')[0];
+            badges.social.GitHub.siteURL += this.githubUsername;
             await this.getGitHubData(repoAddress);
 
             for (const section of sections) {
                 console.clear();
                 await template[`create${section.split(' ').join('')}`]();
             }
+
+            this.sectionList = sections;
         },
 
         async getGitHubData(repo) {
@@ -360,6 +372,13 @@ const badges = {
                 this.licenseType = license.name;
                 let formattedName = name.replaceAll('-', ' ');
                 formattedName = formattedName.replaceAll('_', ' ');
+                formattedName = formattedName
+                    .split(' ')
+                    .map((word) => {
+                        const [first, ...rest] = word;
+                        return [first.toUpperCase(), ...rest].join('');
+                    })
+                    .join(' ');
 
                 console.clear();
 
@@ -368,6 +387,7 @@ const badges = {
                     `Yes, but format first (${chalk.blue(formattedName)})`,
                     'No, use a custom name',
                 ];
+                console.log(title('Basic Project Details:'));
                 const response = await inquirer.prompt([
                     {
                         type: 'list',
@@ -376,6 +396,11 @@ const badges = {
                         )}\nWould you like to make this your project name?`,
                         name: 'confirmProjectName',
                         choices: promptChoices,
+                    },
+                    {
+                        type: 'input',
+                        message: 'Write a brief description of your project.',
+                        name: 'projectDescription',
                     },
                 ]);
 
@@ -395,6 +420,8 @@ const badges = {
 
                     this.projectName = response.newProjectName;
                 }
+
+                this.projectDescription = response.projectDescription;
             }
         },
 
@@ -430,27 +457,23 @@ const badges = {
             ]);
 
             const { motivation, why, problem, learn } = response;
-            /* motivation ? (template.about += `${motivation}\n\n`) : null;
-            why ? (template.about += `${why}\n\n`) : null;
-            problem ? (template.about += `${problem}\n\n`) : null;
-            learn ? (template.about += `${learn}\n\n`) : null; */
 
             template.about = `
             ${
                 motivation
                     ? `What was the motivation behind creating this project?\n\n${motivation}`
-                    : null
+                    : ''
             }
-            ${why ? `\n\nWhy was the project built?\n\n${why}` : null}
+            ${why ? `\n\nWhy was the project built?\n\n${why}` : ''}
             ${
                 problem
                     ? `\n\nWhat problem does this project solve?\n\n${problem}`
-                    : null
+                    : ''
             }
             ${
                 learn
                     ? `\n\nWhat was learned through making this project?\n\n${learn}`
-                    : null
+                    : ''
             }
 
 
@@ -499,7 +522,7 @@ const badges = {
         },
 
         async createPrerequisites() {
-            template.prerequisites = `## Prerequisites
+            template.prerequisites = `## Prerequisites:
             
             Below is the software required to run this program and the steps to install them:
 
@@ -507,7 +530,7 @@ const badges = {
             const steps = await this.addStep('prerequisite');
             for (const stepEntry of steps) {
                 const { stepNumber, step, stepTitle, textStyle } = stepEntry;
-                this.prerequisites += `- ${stepNumber}${stepTitle}
+                this.prerequisites += `- ${stepNumber}: ${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
                 \`\`\`\n\n`;
@@ -522,7 +545,7 @@ const badges = {
             const steps = await this.addStep('installation');
             for (const stepEntry of steps) {
                 const { stepNumber, step, stepTitle, textStyle } = stepEntry;
-                this.installation += `- ${stepNumber}${stepTitle}
+                this.installation += `- ${stepNumber}: ${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
                 \`\`\`\n\n`;
@@ -537,7 +560,7 @@ const badges = {
             const steps = await this.addStep('usage');
             for (const stepEntry of steps) {
                 const { stepNumber, step, stepTitle, textStyle } = stepEntry;
-                this.usage += `- ${stepNumber}${stepTitle}
+                this.usage += `- ${stepNumber}: ${stepTitle}
                 \`\`\`${textStyle}
                 ${step}
                 \`\`\`\n\n`;
@@ -552,7 +575,7 @@ const badges = {
             const steps = await this.addStep('roadmap');
             for (const stepEntry of steps) {
                 const { stepNumber, step, stepTitle, textStyle } = stepEntry;
-                this.roadmap += `- [ ] ${stepTitle} -> ${step}`;
+                this.roadmap += `- [ ] ${stepTitle}: ${step}\n`;
             }
         },
 
@@ -568,9 +591,7 @@ const badges = {
             2. Create your Feature Branch (\`git checkout -b feature/AmazingFeature\`)
             3. Commit your Changes (\`git commit -m 'Add some AmazingFeature'\`)
             4. Push to the Branch (\`git push origin feature/AmazingFeature\`)
-            5. Open a Pull Request
-            
-            <p align="right">(<a href="#readme-top">back to top</a>)</p>`;
+            5. Open a Pull Request`;
 
             const response = await inquirer.prompt([
                 {
@@ -630,7 +651,7 @@ const badges = {
                         'Please select the contact options you wish to include:',
                     name: 'contactOptions',
                     choices: [...Object.keys(badges.social)],
-                    default: ['Email', 'LinkedIn'],
+                    default: ['Email', 'LinkedIn', 'GitHub'],
                 },
             ]);
 
@@ -638,18 +659,22 @@ const badges = {
 
             const appendLinks = async function (options) {
                 for (const link of options) {
-                    console.clear();
-                    console.log(title('Contact Section: Step 2 - Finish URL'));
-                    const response = await inquirer.prompt([
-                        {
-                            type: 'input',
-                            message: `${link}| ${badges.social[link].siteURL}`,
-                            name: 'completeURL',
-                        },
-                    ]);
+                    if (link != 'GitHub') {
+                        console.clear();
+                        console.log(
+                            title('Contact Section: Step 2 - Finish URL')
+                        );
+                        const response = await inquirer.prompt([
+                            {
+                                type: 'input',
+                                message: `${link}| ${badges.social[link].siteURL}`,
+                                name: 'completeURL',
+                            },
+                        ]);
 
-                    const { completeURL } = response;
-                    badges.social[link].siteURL += completeURL;
+                        const { completeURL } = response;
+                        badges.social[link].siteURL += completeURL;
+                    }
                 }
             };
             await appendLinks(contactOptions);
@@ -658,7 +683,97 @@ const badges = {
         },
 
         async createAcknowledgements() {
-            console.log('Acknowledgements created');
+            console.log(title('Acknowledgements'));
+            const getResponse = async function (list) {
+                const response = await inquirer.prompt([
+                    {
+                        type: 'input',
+                        message: 'Who would you like to thank?',
+                        name: 'thanks',
+                    },
+                ]);
+                const { thanks } = response;
+
+                if (thanks) {
+                    list.push(thanks);
+                    return getResponse(list);
+                }
+
+                return list;
+            };
+
+            const list = await getResponse([]);
+            this.acknowledgements = ``;
+            for (const acknowledgement of list) {
+                this.acknowledgements += `- ${acknowledgement}\n`;
+            }
+        },
+
+        async createTests() {
+            console.log(title('Tests:'));
+            const getResponse = async function (list) {
+                const response = await inquirer.prompt([
+                    {
+                        type: 'input',
+                        message: 'Please state a test step:',
+                        name: 'test',
+                    },
+                ]);
+                const { test } = response;
+
+                if (test) {
+                    list.push(test);
+                    return getResponse(list);
+                }
+
+                return list;
+            };
+
+            const list = await getResponse([]);
+            this.tests = ``;
+            list.forEach(function (test, index) {
+                template.tests += `- ${index + 1}. ${test}\n`;
+            });
+        },
+
+        async createQuestions() {
+            console.log(title('Questions:'));
+            const getResponse = async function (list) {
+                const response = await inquirer.prompt([
+                    {
+                        type: 'input',
+                        message: 'Create a question:',
+                        name: 'question',
+                    },
+                ]);
+                const { question } = response;
+
+                if (question) {
+                    const answer = await inquirer.prompt([
+                        {
+                            type: 'input',
+                            message: `${question}`,
+                            name: 'answer',
+                        },
+                    ]);
+
+                    list.push({ question: question, answer: answer.answer });
+                    return getResponse(list);
+                }
+
+                return list;
+            };
+
+            const list = await getResponse([]);
+            this.questions = ``;
+            for (const entry of list) {
+                const { question, answer } = entry;
+                this.questions += `- ${question}
+                \`\`\`
+                ${answer}
+                \`\`\`
+                \n\n`;
+            }
         },
 
         addBadge(badges, badgeType, badgeTypeString) {
@@ -722,6 +837,89 @@ const badges = {
             return stepList;
         },
 
+        createTableOfContents() {
+            return `<!-- TABLE OF CONTENTS -->
+            <details>
+                <summary>Table of Contents</summary>
+                <ol>
+                ${
+                    this.sectionList.includes('About')
+                        ? `<li>
+                    <a href="#about-the-project">About The Project</a>
+                    ${
+                        this.sectionList.includes('Built With')
+                            ? `<ul>
+                    <li><a href="#built-with">Built With</a></li>
+                    </ul>`
+                            : ''
+                    }
+                </li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Prerequisites') ||
+                    this.sectionList.includes('Installation')
+                        ? `<li>
+                    <a href="#getting-started">Getting Started</a>
+                    <ul>
+                    ${
+                        this.sectionList.includes('Prerequisites')
+                            ? `<li><a href="#prerequisites">Prerequisites</a></li>`
+                            : ''
+                    }
+                    ${
+                        this.sectionList.includes('Installation')
+                            ? `<li><a href="#installation">Installation</a></li>`
+                            : ''
+                    }
+                    </ul>
+                </li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Usage')
+                        ? `<li><a href="#usage">Usage</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Roadmap')
+                        ? `<li><a href="#roadmap">Roadmap</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Contributing')
+                        ? `<li><a href="#contributing">Contributing</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('License')
+                        ? `<li><a href="#license">License</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Contact')
+                        ? `<li><a href="#contact">Contact</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Tests')
+                        ? `<li><a href="#tests">Tests</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Questions')
+                        ? `<li><a href="#questions">Questions</a></li>`
+                        : ''
+                }
+                ${
+                    this.sectionList.includes('Acknowledgements')
+                        ? `<li><a href="#acknowledgments">Acknowledgments</a></li>`
+                        : ''
+                }
+                </ol>
+            </details>`;
+        },
+
         createTemplate() {
             const template = `
             <a name="readme-top"></a>
@@ -736,62 +934,46 @@ const badges = {
             <!-- PROJECT LOGO -->
             <br />
             <div align="center">
-                <a href="GITHUB_URL">
-                <img src="LOGO_SOURCE" alt="Logo" width="80" height="80">
+                <a href="https://www.github.com/${this.repoPath}">
+                <!-- <img src="LOGO_SOURCE" alt="Logo" width="80" height="80"> -->
                 </a>
 
             <h3 align="center">${this.projectName}</h3>
                 <p align="center">
-                PROJECT_DESCRIPTION
+                ${this.projectDescription}
                 <br />
-                <a href="GITHUB_URL"><strong>Explore the docs »</strong></a>
+                <a href="https://www.github.com/${
+                    this.repoPath
+                }"><strong>Explore the docs »</strong></a>
                 <br />
                 <br />
-                <a href="GITHUB_URL">View Demo</a>
+                <a href="https://www.github.com/${this.repoPath}">View Demo</a>
                 ·
-                <a href="GITHUB_URL/issues">Report Bug</a>
+                <a href="https://www.github.com/${
+                    this.repoPath
+                }/issues">Report Bug</a>
                 ·
-                <a href="GITHUB_URL/issues">Request Feature</a>
+                <a href="https://www.github.com/${
+                    this.repoPath
+                }/issues">Request Feature</a>
                 </p>
             </div>
-
+            
             <!-- TABLE OF CONTENTS -->
-            <details>
-                <summary>Table of Contents</summary>
-                <ol>
-                <li>
-                    <a href="#about-the-project">About The Project</a>
-                    <ul>
-                    <li><a href="#built-with">Built With</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#getting-started">Getting Started</a>
-                    <ul>
-                    <li><a href="#prerequisites">Prerequisites</a></li>
-                    <li><a href="#installation">Installation</a></li>
-                    </ul>
-                </li>
-                <li><a href="#usage">Usage</a></li>
-                <li><a href="#roadmap">Roadmap</a></li>
-                <li><a href="#contributing">Contributing</a></li>
-                <li><a href="#license">License</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#acknowledgments">Acknowledgments</a></li>
-                </ol>
-            </details>
+
+            ${this.createTableOfContents().replace(/^ +/gm, '')}
 
             <!-- ABOUT THE PROJECT -->
 
             ## About The Project
 
-            [![Product Name Screen Shot][product-screenshot]](https://example.com)
+            <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
             ${this.about}
 
             <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-            ### Built With
+            ## Built With:
 
             ${this.builtWithBadges}
 
@@ -799,7 +981,7 @@ const badges = {
 
             <!-- GETTING STARTED -->
 
-            ## Getting Started
+            ## Getting Started:
 
             Please reference the prerequisites / installation guides below to begin using this program.
 
@@ -839,7 +1021,17 @@ const badges = {
 
             ${this.socialBadges}
 
-            Project Link: ['https://www.github.com/${this.repoPath}'](${this.projectName})
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            ## Tests:
+
+            ${this.tests}
+
+            <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+            ## Questions
+
+            ${this.questions}
 
             <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -847,32 +1039,44 @@ const badges = {
 
             ## Acknowledgments
 
-            -   []()
-            -   []()
-            -   []()
+            ${this.acknowledgements}
 
             <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
             <!-- MARKDOWN LINKS & IMAGES -->
             <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-            [contributors-shield]: https://img.shields.io/github/contributors/${this.repoPath}.svg?style=for-the-badge
-            [contributors-url]: GITHUB_URL/graphs/contributors
-            [forks-shield]: https://img.shields.io/github/forks/${this.repoPath}.svg?style=for-the-badge
-            [forks-url]: GITHUB_URL/network/members
-            [stars-shield]: https://img.shields.io/github/stars/${this.repoPath}.svg?style=for-the-badge
-            [stars-url]: GITHUB_URL/stargazers
-            [issues-shield]: https://img.shields.io/github/issues/${this.repoPath}.svg?style=for-the-badge
-            [issues-url]: GITHUB_URL/issues
-            [license-shield]: https://img.shields.io/github/license/${this.repoPath}.svg?style=for-the-badge
-            [license-url]: GITHUB_URL/blob/master/LICENSE.txt
+            [contributors-shield]: https://img.shields.io/github/contributors/${
+                this.repoPath
+            }.svg?style=for-the-badge
+            [contributors-url]: https://www.github.com/${
+                this.repoPath
+            }/graphs/contributors
+            [forks-shield]: https://img.shields.io/github/forks/${
+                this.repoPath
+            }.svg?style=for-the-badge
+            [forks-url]: https://www.github.com/${this.repoPath}/network/members
+            [stars-shield]: https://img.shields.io/github/stars/${
+                this.repoPath
+            }.svg?style=for-the-badge
+            [stars-url]: https://www.github.com/${this.repoPath}/stargazers
+            [issues-shield]: https://img.shields.io/github/issues/${
+                this.repoPath
+            }.svg?style=for-the-badge
+            [issues-url]: https://www.github.com/${this.repoPath}/issues
+            [license-shield]: https://img.shields.io/github/license/${
+                this.repoPath
+            }.svg?style=for-the-badge
+            [license-url]: https://www.github.com/${
+                this.repoPath
+            }/blob/master/LICENSE.txt
             [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
             [product-screenshot]: images/screenshot.png
 
-${this.referenceLinks}
+            ${this.referenceLinks}
 `;
 
-            fs.writeFile('test.md', template.replace(/^ +/gm, ''), (err) => {
+            fs.writeFile('README.md', template.replace(/^ +/gm, ''), (err) => {
                 err ? console.log(err) : console.log('Saved Successfully');
             });
         },
@@ -882,31 +1086,3 @@ ${this.referenceLinks}
     await template.init();
     template.createTemplate();
 })();
-
-// Ask for github repo
-// use repo link to create badges for: project name, contributors, forks, stars, issues, and license
-
-// ask for brief description of project
-// ask for the relative path to project logo (if it exists)
-
-// ABOUT PROJECT
-//
-// User selects desired fields to include, including:
-//
-// - Motivation:
-// - Why was the project built?
-// - What problem does it solve?
-// - What was learned?
-// - What is unique about the project?
-// - Challenges faced
-// - Future development
-//
-// A loop runs through each selected field and asks the user to explain in further detail.
-
-// User is prompted to answer whether they need to include an installation section (Y/N)
-//
-// If yes, the user is prompted to enter each step for the installation. A loop runs to append template guide with a new step until the user enters an empty string.
-
-// User is asked whether they need a usage guide? (Y/N)
-//
-// Loop runs to create usage guide. Pressing 'enter' with text creates a double space. Pressing 'enter' without text moves on.
